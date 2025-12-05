@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task</title>
+    <style>
+        /* Shared Styles (same as index) */
+        body { font-family: 'Segoe UI Mono', 'Roboto Mono', monospace; background-color: #f4f4f4; color: #222; max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        h1 { border-bottom: 3px double #333; padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; }
+        
+        .nav-link { display: inline-block; background: #ddd; padding: 5px 10px; border: 1px solid #333; color: black; margin-bottom: 20px; text-decoration: none;}
+        
+        form { background: #fff; padding: 25px; border: 1px solid #333; box-shadow: 4px 4px 0px rgba(0,0,0,0.1); }
+        
+        label { display: block; font-weight: bold; margin-bottom: 5px; margin-top: 15px; }
+        input[type="text"], select { width: 95%; padding: 10px; border: 1px solid #888; font-family: inherit; }
+        
+        input[type="submit"] {
+            margin-top: 20px; background-color: #000; color: white; border: 1px solid #333;
+            padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; text-transform: uppercase; width: 100%;
+        }
+        input[type="submit"]:hover { background-color: #444; }
+        
+        .meta-info { background: #eee; padding: 10px; border: 1px dashed #999; font-size: 0.9rem; margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+
+    <a href="/" class="nav-link">&lt; Back to Dashboard</a>
+
+    <h1>[ EDIT TASK #<%= task.id %> ]</h1>
+
+    <form method="POST" action="/edit/<%= task.id %>">
+        
+        <div class="meta-info">
+            Created: <%= task.created_at.substring(0, 10) %> <br>
+            Current Status: <strong><%= task.status %></strong>
+        </div>
+
+        <label for="title">Task Title:</label>
+        <input type="text" id="title" name="title" required value="<%= task.title %>">
+        
+        <label for="user_id">Assigned User:</label>
+        <select id="user_id" name="user_id" required>
+            <% users.forEach(user => { %>
+                <option value="<%= user.id %>" <%= (user.id === task.assigned_user_id) ? 'selected' : '' %>>
+                    <%= user.username %>
+                </option>
+            <% }) %>
+        </select>
+        
+        <label for="priority">Priority Level:</label>
+        <select id="priority" name="priority" required>
+            <% ['High', 'Medium', 'Low'].forEach(p => { %>
+                <option value="<%= p %>" <%= (p === task.priority) ? 'selected' : '' %>>
+                    <%= p %> Priority
+                </option>
+            <% }) %>
+        </select>
+        
+        <input type="submit" value="UPDATE TASK">
+    </form>
+    
+</body>
+</html>

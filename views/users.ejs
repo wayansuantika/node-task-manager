@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Users</title>
+    <style>
+        body { font-family: 'Segoe UI Mono', 'Roboto Mono', monospace; background-color: #f4f4f4; color: #222; max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        h1 { border-bottom: 3px double #333; padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; }
+        
+        .nav-link { display: inline-block; background: #ddd; padding: 5px 10px; border: 1px solid #333; color: black; margin-bottom: 20px; text-decoration: none;}
+
+        form { background: #fff; padding: 15px; border: 1px solid #333; box-shadow: 4px 4px 0px rgba(0,0,0,0.1); margin-bottom: 30px; display: flex; gap: 10px; align-items: center;}
+        input[type="text"] { flex-grow: 1; padding: 8px; border: 1px solid #888; font-family: inherit; }
+        input[type="submit"] { background: #000; color: white; padding: 8px 15px; border: 1px solid #333; font-family: inherit; font-weight: bold; cursor: pointer; }
+
+        .user-list { list-style: none; padding: 0; }
+        .user-item { 
+            background: #fff; border: 1px solid #333; padding: 10px 15px; margin-bottom: 5px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .user-item:hover { background: #fafafa; }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="nav-link">&lt; Back to Dashboard</a>
+
+    <h1>[ USER MANAGEMENT ]</h1>
+
+    <form method="POST" action="/users">
+        <label for="username">New User:</label>
+        <input type="text" id="username" name="username" required placeholder="Enter username...">
+        <input type="submit" value="ADD">
+    </form>
+    
+    <h2 style="background: #333; color: white; padding: 5px 10px; font-size: 1rem;">Registered Users</h2>
+    <ul class="user-list">
+        <% if (users.length > 0) { %>
+            <% users.forEach(user => { %>
+                <li class="user-item">
+                    <strong>#<%= user.id %>: <%= user.username %></strong> 
+                    <a href="/delete-user/<%= user.id %>" style="color: red; text-decoration: none;">[x] Delete</a>
+                </li>
+            <% }) %>
+        <% } else { %>
+            <li class="user-item">No users found.</li>
+        <% } %>
+    </ul>
+
+</body>
+</html>

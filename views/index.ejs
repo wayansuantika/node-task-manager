@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --border-color: #333;
+            --accent-color: #000;
+            --text-color: #222;
+        }
+
+        body { 
+            font-family: 'Segoe UI Mono', 'Roboto Mono', monospace; 
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+            line-height: 1.5;
+        }
+
+        /* Typography & Headers */
+        h1, h2 { text-transform: uppercase; letter-spacing: 1px; margin-top: 0; }
+        h1 { border-bottom: 3px double var(--border-color); padding-bottom: 10px; margin-bottom: 30px; }
+        h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border-color); display: inline-block; padding-bottom: 3px; }
+
+        /* Links */
+        a { text-decoration: none; color: blue; }
+        a:hover { text-decoration: underline; background-color: #e0e0ff; }
+        .nav-link { display: inline-block; background: #ddd; padding: 5px 10px; border: 1px solid var(--border-color); color: black; margin-bottom: 20px;}
+
+        /* Forms & Inputs */
+        form { background: var(--card-bg); padding: 15px; border: 1px solid var(--border-color); box-shadow: 4px 4px 0px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        label { font-weight: bold; display: inline-block; width: 100px; }
+        input[type="text"], select { 
+            padding: 8px; 
+            border: 1px solid #888; 
+            font-family: inherit; 
+            margin-right: 10px;
+        }
+        input[type="submit"] {
+            background-color: var(--accent-color);
+            color: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        input[type="submit"]:hover { background-color: #444; }
+
+        /* Filter Section */
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: #e8e8e8;
+            padding: 15px;
+            border: 1px dashed var(--border-color);
+            align-items: center;
+        }
+        .filters-container form { margin: 0; box-shadow: none; padding: 0; background: transparent; border: none; }
+        .filters-container label { width: auto; margin-right: 5px; font-size: 0.9em;}
+
+        /* Task List */
+        .task-list { list-style: none; padding: 0; }
+        .task-item { 
+            background: var(--card-bg);
+            border: 1px solid var(--border-color); 
+            padding: 15px; 
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+        .task-item:hover { transform: translateX(5px); border-left: 5px solid var(--border-color); }
+        
+        .task-complete { opacity: 0.6; background-color: #f9f9f9; }
+        .task-complete strong { text-decoration: line-through; }
+
+        /* Task Details Grid */
+        .task-info { display: flex; flex-direction: column; gap: 5px; }
+        .task-meta { font-size: 0.85rem; color: #555; display: flex; gap: 15px; align-items: center;}
+        
+        /* Badges */
+        .badge { padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.8em; text-transform: uppercase;}
+        .priority-High { background: #ffebeb; color: #d00; border-color: #d00; }
+        .priority-Medium { background: #fffbe6; color: #b58900; border-color: #b58900; }
+        .priority-Low { background: #e6ffed; color: #007a22; border-color: #007a22; }
+
+        /* Action Buttons */
+        .actions { display: flex; gap: 10px; font-size: 0.9rem;}
+        .btn-sm { border: 1px solid #ccc; padding: 3px 8px; color: #333; }
+        .btn-edit { border-color: green; color: green; }
+        .btn-del { border-color: red; color: red; }
+    </style>
+</head>
+<body>
+
+    <h1>[ NODE.JS TASK MANAGER ]</h1>
+    <a href="/users" class="nav-link">:: Manage Users ::</a>
+
+    <div class="filters-container">
+        <strong>FILTER BY:</strong>
+        <form method="GET" action="/">
+            <select name="user_id" onchange="this.form.submit()">
+                <option value="all">-- User --</option>
+                <% users.forEach(user => { %>
+                    <option value="<%= user.id %>" <%= (currentUserId == user.id) ? 'selected' : '' %>><%= user.username %></option>
+                <% }) %>
+            </select>
+        </form>
+
+        <form method="GET" action="/">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all">-- Status --</option>
+                <option value="Open" <%= (currentStatus == 'Open') ? 'selected' : '' %>>Open</option>
+                <option value="Complete" <%= (currentStatus == 'Complete') ? 'selected' : '' %>>Complete</option>
+            </select>
+        </form>
+
+        <form method="GET" action="/">
+            <select name="priority" onchange="this.form.submit()">
+                <option value="all">-- Priority --</option>
+                <option value="High" <%= (currentPriority == 'High') ? 'selected' : '' %>>High</option>
+                <option value="Medium" <%= (currentPriority == 'Medium') ? 'selected' : '' %>>Medium</option>
+                <option value="Low" <%= (currentPriority == 'Low') ? 'selected' : '' %>>Low</option>
+            </select>
+        </form>
+    </div>
+    
+    <br>
+
+    <form method="POST" action="/">
+        <h2 style="margin-bottom: 15px; border:none;">+ CREATE NEW TASK</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" name="title" required placeholder="Enter task title..." style="flex-grow: 1;">
+            
+            <select name="user_id" required>
+                <option value="" disabled selected>Assign To...</option>
+                <% users.forEach(user => { %>
+                    <option value="<%= user.id %>"><%= user.username %></option>
+                <% }) %>
+            </select>
+
+            <select name="priority" required>
+                <option value="Medium">Medium Priority</option>
+                <option value="High">High Priority</option>
+                <option value="Low">Low Priority</option>
+            </select>
+            
+            <input type="submit" value="ADD TASK">
+        </div>
+    </form>
+    
+    <h2 style="background: #333; color: white; padding: 5px 10px; display: block;">
+        Task List (<%= tasks.length %>)
+    </h2>
+    
+    <ul class="task-list">
+        <% if (tasks.length > 0) { %>
+            <% tasks.forEach(task => { %>
+                <li class="task-item <%= (task.status === 'Complete') ? 'task-complete' : '' %>">
+                    <div class="task-info">
+                        <strong style="font-size: 1.1rem;"><%= task.title %></strong> 
+                        <div class="task-meta">
+                            <span>@<%= task.username %></span>
+                            <span class="badge priority-<%= task.priority %>"><%= task.priority %></span>
+                            <span><%= task.created_at.substring(0, 10) %></span>
+                            <% if(task.status === 'Complete') { %> <span style="color:green">✓ DONE</span> <% } %>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <a href="/edit/<%= task.id %>" class="btn-sm btn-edit">[E] Edit</a>
+                        <% if (task.status !== 'Complete') { %>
+                            <a href="/complete/<%= task.id %>" class="btn-sm">✓ Complete</a>
+                        <% } %>
+                        <a href="/delete/<%= task.id %>" class="btn-sm btn-del">[x] Delete</a>
+                    </div>
+                </li>
+            <% }) %>
+        <% } else { %>
+            <li class="task-item" style="justify-content: center; color: #888;">No tasks found matching current filters.</li>
+        <% } %>
+    </ul>
+
+</body>
+</html>
